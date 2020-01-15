@@ -33,28 +33,34 @@ app.get('/', function(req, res) {
 
 app.get('/connect', async function(req, res) {
   try {
-    let consentUrl = await xero.buildConsentUrl();	  
-    res.redirect(consentUrl);
+    let consentUrl = await xero.buildConsentUrl();
+    res.redirect(consentUrl + "&state=THIS_IS_A_STANDARD_OAUTH_2_STATE_PARAMETER");
   } catch (err) {
     res.send("Sorry, something went wrong");
   }
 })
 
 app.get('/callback', async function(req, res) {
-  const url = "http://localhost:5000/" + req.originalUrl;
+  let url = redirectUri + req.originalUrl;
+
+  // We have to call this function until this issue is resolved: https://github.com/XeroAPI/xero-node/issues/317
+  await xero.buildConsentUrl();
+
+  // Uncomment following line in order to work-around the current issue: https://github.com/XeroAPI/xero-node/issues/304
+  // url = url.replace(/&state=[^&]*/)
   await xero.setAccessTokenFromRedirectUri(url);
 
   // Optional: read user info from the id token
   let tokenClaims = await xero.readIdTokenClaims();
   const accessToken = await xero.readTokenSet();
-  
+
   req.session.tokenClaims = tokenClaims;
   req.session.accessToken = accessToken;
   req.session.xeroTenantId = xero.tenantIds[0];
   res.redirect('/organisation');
 })
 
-app.get('/organisation', async function(req, res) {  
+app.get('/organisation', async function(req, res) {
   try {
     const response = await xero.accountingApi.getOrganisations(xero.tenantIds[0])
     res.send("Hello, " + response.body.organisations[0].name);
