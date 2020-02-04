@@ -3,9 +3,9 @@
 const express = require('express');
 const xero_node = require('xero-node')
 
-const client_id = 'BCF21C682B9C4E609276FA0F1FADAF36'
-const client_secret = 'DQxKJTmNzeZz6MS0gVasXIEXb3TAq2c8uzSeaoR4uO9GptMz'
-const redirectUri = 'http://localhost:5000/callback'
+const client_id = 'CLIENT_ID'
+const client_secret = 'CLIENT_SECRET'
+const redirectUri = 'REDIRECT_URI'
 const scopes = 'openid profile email accounting.transactions accounting.settings offline_access'
 
 const xero = new xero_node.XeroClient({
